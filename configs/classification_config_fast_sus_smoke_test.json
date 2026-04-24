@@ -1,0 +1,33 @@
+{
+  "train_path": "headfeatures_data/HeadFeaturesVSSUSBinary_BuildA.xlsx",
+  "test_path": "headfeatures_data/HeadFeaturesVSSUSBinary_BuildB.xlsx",
+  "output_dir": "notebook/outputs/fast_sus_smoke_test",
+  "target_column": "sus_not_acceptable_target",
+  "classification_type": "binary",
+  "selection_metric": "f1_positive",
+  "cv_splits": 3,
+  "cv_repeats": 1,
+  "feature_families": null,
+  "features": null,
+  "preprocessing": [
+    "robust"
+  ],
+  "imbalance_strategies": [
+    "none",
+    "class_weight"
+  ],
+  "threshold_strategies": [
+    "default",
+    "roc_gmean"
+  ],
+  "models": [
+    {
+      "name": "logreg",
+      "param_grid": [
+        {
+          "C": 1.0
+        }
+      ]
+    }
+  ]
+}
