@@ -1,0 +1,5 @@
+stage,build,questionnaire_type,dataset_file,metadata_file,rows,columns,skipped_count,skipped_participants,derived_dataset,metadata_rows
+headfeatures,A,SUS,HeadFeaturesVSSUS_BuildA.xlsx,HeadFeaturesVSSUS_BuildA_metadata.csv,36,57,0.0,,,
+headfeatures,B,SUS,HeadFeaturesVSSUS_BuildB.xlsx,HeadFeaturesVSSUS_BuildB_metadata.csv,36,57,0.0,,,
+derived,A,SUS,HeadFeaturesVSSUSBinary_BuildA.xlsx,HeadFeaturesVSSUSBinary_BuildA_metadata.csv,36,59,,,sus_binary,36.0
+derived,B,SUS,HeadFeaturesVSSUSBinary_BuildB.xlsx,HeadFeaturesVSSUSBinary_BuildB_metadata.csv,36,59,,,sus_binary,36.0

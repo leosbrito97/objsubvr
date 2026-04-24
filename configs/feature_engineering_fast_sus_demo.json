@@ -1,0 +1,12 @@
+{
+  "scores_path": "notebook/data/raw/fast_demo/FAST Scores.xlsx",
+  "tracking_dir": "notebook/data/raw/fast_demo/Tracking",
+  "output_dir": "notebook/data/generated/headfeatures",
+  "questionnaire_type": "SUS",
+  "builds": [
+    "A",
+    "B"
+  ],
+  "derived_dataset": "sus_binary",
+  "n_turns_threshold_deg": 0.05
+}

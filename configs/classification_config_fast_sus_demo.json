@@ -1,6 +1,6 @@
 {
-  "train_path": "notebook/data/generated/FAST_SUS_BuildA_standardized.xlsx",
-  "test_path": "notebook/data/generated/FAST_SUS_BuildB_standardized.xlsx",
+  "train_path": "notebook/data/generated/headfeatures/HeadFeaturesVSSUSBinary_BuildA.xlsx",
+  "test_path": "notebook/data/generated/headfeatures/HeadFeaturesVSSUSBinary_BuildB.xlsx",
   "output_dir": "notebook/outputs/fast_sus_demo_pipeline",
   "target_column": "sus_not_acceptable_target",
   "classification_type": "binary",
