@@ -32,12 +32,27 @@ In that sense, this folder follows the style commonly used by paper repositories
 - notebooks provide an interactive path for inspection and adaptation;
 - scripts provide the same logic in reusable and automatable form.
 
+## Directory Layout
+
+- `data/original/`
+  Input spreadsheets used by the notebooks. The repository ships with a bundled FAST SUS demo pair.
+- `data/generated/`
+  Standardized spreadsheets produced by the preparation notebook or script.
+- `outputs/`
+  Model-selection outputs, metrics, predictions, and serialized artifacts.
+- `configs/`
+  JSON files for dataset mapping and classification-pipeline configuration.
+- `scripts/`
+  Reusable Python code called by the notebooks and CLI commands.
+
+All notebook defaults use paths relative to `notebook/`. This is intentional so the folder remains portable when pushed to GitHub or cloned elsewhere.
+
 ## Files
 
 - `01_prepare_head_metrics_dataset.ipynb`
-  Standardizes user datasets into the expected schema.
+  Standardizes input spreadsheets from `data/original/` into the expected schema and writes them to `data/generated/`.
 - `02_run_classification_pipeline.ipynb`
-  Runs model selection on a training set and evaluates the selected pipeline on a test set.
+  Runs model selection on a training set from `data/generated/` and evaluates the selected pipeline on a test set.
 - `scripts/head_metrics_schema.py`
   Defines the 47 input variables and feature families.
 - `scripts/transform_head_metrics.py`
@@ -48,6 +63,28 @@ In that sense, this folder follows the style commonly used by paper repositories
   Template for mapping user column names to the expected feature names.
 - `configs/classification_config_template.json`
   Template for model/preprocessing/imbalance/threshold experiment configuration.
+- `configs/transform_config_fast_sus_demo.json`
+  Demo mapping config used by the default preparation notebook.
+- `configs/classification_config_fast_sus_demo.json`
+  Demo experiment config used by the default classification notebook.
+
+## Bundled Demo Data
+
+The repository includes a small ready-to-run example:
+
+- `data/original/FAST_SUS_BuildA_original.xlsx`
+- `data/original/FAST_SUS_BuildB_original.xlsx`
+
+These are not raw tracking files. They are already tabular head-metrics spreadsheets, meant to demonstrate the transformation and classification workflow with the same style of inputs used throughout the paper pipeline.
+
+In the bundled demo:
+
+- the feature names already match the FAST schema;
+- the transform step is effectively an identity mapping;
+- the target column is `sus_not_acceptable_target`;
+- `sus_score` is preserved as a passthrough metadata column in the generated files.
+
+For a new external dataset, replace the files in `data/original/` or point the notebooks to another location and edit the JSON mapping accordingly.
 
 ## Scope
 
@@ -67,7 +104,7 @@ The standardized dataset must contain:
 
 - the 47 feature columns listed in `scripts/head_metrics_schema.py`;
 - a classification target column, for example `target`;
-- optionally metadata columns such as `participant_id` and `build`.
+- optionally metadata columns such as `participant_id`, `build`, or score columns preserved as passthrough fields.
 
 For binary classification, the target must be encoded as:
 
@@ -81,20 +118,22 @@ For multiclass classification, the target must be integer encoded, for example `
 Standardize a train dataset:
 
 ```powershell
-python notebook\scripts\transform_head_metrics.py --input my_train.xlsx --output notebook\outputs\train_standardized.csv --config notebook\configs\transform_config_template.json
+python notebook\scripts\transform_head_metrics.py --input notebook\data\original\FAST_SUS_BuildA_original.xlsx --output notebook\data\generated\FAST_SUS_BuildA_standardized.xlsx --config notebook\configs\transform_config_fast_sus_demo.json
 ```
 
 Standardize a test dataset:
 
 ```powershell
-python notebook\scripts\transform_head_metrics.py --input my_test.xlsx --output notebook\outputs\test_standardized.csv --config notebook\configs\transform_config_template.json
+python notebook\scripts\transform_head_metrics.py --input notebook\data\original\FAST_SUS_BuildB_original.xlsx --output notebook\data\generated\FAST_SUS_BuildB_standardized.xlsx --config notebook\configs\transform_config_fast_sus_demo.json
 ```
 
 Run the classification pipeline:
 
 ```powershell
-python notebook\scripts\classification_pipeline.py --config notebook\configs\classification_config_template.json
+python notebook\scripts\classification_pipeline.py --config notebook\configs\classification_config_fast_sus_demo.json
 ```
+
+To adapt the workflow to your own data, duplicate the demo configs or start from the two template files in `configs/`.
 
 ## Methodological Rules
 

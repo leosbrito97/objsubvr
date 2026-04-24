@@ -1,0 +1,84 @@
+{
+  "train_path": "notebook/data/generated/FAST_SUS_BuildA_standardized.xlsx",
+  "test_path": "notebook/data/generated/FAST_SUS_BuildB_standardized.xlsx",
+  "output_dir": "notebook/outputs/fast_sus_demo_pipeline",
+  "target_column": "sus_not_acceptable_target",
+  "classification_type": "binary",
+  "selection_metric": "f1_positive",
+  "cv_splits": 3,
+  "cv_repeats": 3,
+  "feature_families": null,
+  "features": null,
+  "preprocessing": [
+    "median_only",
+    "robust",
+    "standard"
+  ],
+  "imbalance_strategies": [
+    "none",
+    "class_weight",
+    "random_undersample",
+    "smote",
+    "nearmiss"
+  ],
+  "threshold_strategies": [
+    "default",
+    "roc_gmean",
+    "pr_f1",
+    "pr_ideal_distance"
+  ],
+  "models": [
+    {
+      "name": "logreg",
+      "param_grid": [
+        {
+          "C": 0.25
+        },
+        {
+          "C": 1.0
+        },
+        {
+          "C": 4.0
+        }
+      ]
+    },
+    {
+      "name": "svm",
+      "param_grid": [
+        {
+          "kernel": "linear",
+          "C": 0.25
+        },
+        {
+          "kernel": "linear",
+          "C": 1.0
+        },
+        {
+          "kernel": "rbf",
+          "C": 1.0,
+          "gamma": "scale"
+        }
+      ]
+    },
+    {
+      "name": "random_forest",
+      "param_grid": [
+        {
+          "n_estimators": 300,
+          "max_depth": null,
+          "min_samples_leaf": 1
+        },
+        {
+          "n_estimators": 300,
+          "max_depth": 5,
+          "min_samples_leaf": 1
+        },
+        {
+          "n_estimators": 300,
+          "max_depth": null,
+          "min_samples_leaf": 3
+        }
+      ]
+    }
+  ]
+}
