@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from fast_tracking_ssq_dataset import FEATURE_COLUMNS
+from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 HEADFEATURES_DIR = ROOT / "headfeatures_data"
 SUS_SCORE_COL = "sus_score"
 SUS_BINARY_TARGET_COL = "sus_not_acceptable_target"

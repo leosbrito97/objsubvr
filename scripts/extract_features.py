@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from fast_tracking_ssq_dataset import QUESTIONNAIRE_TYPES
+from objsubvr.fast_tracking_ssq_dataset import QUESTIONNAIRE_TYPES
 from scripts.feature_engineering_pipeline import generate_derived_dataset, generate_headfeatures_for_questionnaire
 
 

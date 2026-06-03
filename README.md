@@ -4,46 +4,75 @@ Reference pipeline for the paper:
 
 **From Head Yaw to HMD Pose: A Reproducible Benchmark of Subjective VR Outcome Recoverability**
 
-This repository is organized around one reproducible workflow:
+This repository exposes the final reproducible pipeline used by the paper. The workflow is intentionally simple:
 
 ```text
 FAST-style raw data
-  -> HMD pose feature extraction
-  -> selected article classification pipeline
-  -> reproducible output tables
+  -> feature extraction
+  -> selected article pipeline
+  -> output tables
 ```
 
-The repository is not intended to preserve the full internal experiment history. It exposes the final paper pipeline in a form that external readers can run, inspect, and adapt.
+The internal experiment history is not part of this repository. The goal here is to make the final pipeline easy for external readers, reviewers, and researchers to run.
 
-## Repository Structure
+## Index
+
+- [Repository Layout](#repository-layout)
+- [Install](#install)
+- [Input Data](#input-data)
+- [Feature Extraction](#feature-extraction)
+- [Article Pipeline](#article-pipeline)
+- [Configuration Files](#configuration-files)
+- [Outputs](#outputs)
+- [Selected Model Configurations](#selected-model-configurations)
+- [Methodological Safeguards](#methodological-safeguards)
+- [Feature-Extraction Parameters](#feature-extraction-parameters)
+- [Notebooks](#notebooks)
+- [Adapting The Pipeline](#adapting-the-pipeline)
+- [Citation](#citation)
+
+## Repository Layout
 
 ```text
 configs/
-  feature_extraction_fast.json      # full FAST-style feature extraction
-  feature_extraction_demo.json      # included demo feature extraction
-  pipeline_article_best.json        # selected best model config per questionnaire
-  examples/                         # auxiliary configs for demos/templates
+  feature_extraction_fast.json
+  feature_extraction_demo.json
+  pipeline_article_best.json
+  examples/
+
+objsubvr/
+  fast_tracking_ssq_dataset.py
+  feature_families.py
+  sus_binary_dataset.py
+  tlx_binary_dataset.py
+  spes_binary_dataset.py
+  ssq_3class_dataset.py
 
 scripts/
-  extract_features.py               # raw tracking + scores -> feature tables
-  run_pipeline.py                   # feature tables -> article benchmark outputs
-  feature_engineering_pipeline.py   # reusable feature-extraction helpers
-  classification_pipeline.py        # generic classification utility
-  transform_head_metrics.py         # schema-alignment utility
+  extract_features.py
+  run_pipeline.py
+  feature_engineering_pipeline.py
+  classification_pipeline.py
+  transform_head_metrics.py
+  head_metrics_schema.py
 
-data/raw/fast_demo/                 # small included FAST-style demo subset
-docs/feature_extraction_parameters.md
-outputs/                            # generated outputs
+notebooks/
+  01_prepare_head_metrics_dataset.ipynb
+  02_run_classification_pipeline.ipynb
+
+data/raw/fast_demo/
+docs/
+outputs/
 ```
 
-The public reproduction path uses only:
+The intended public commands are:
 
-```text
-scripts/extract_features.py
-scripts/run_pipeline.py
-configs/feature_extraction_fast.json
-configs/pipeline_article_best.json
+```powershell
+python scripts\extract_features.py --config configs\feature_extraction_fast.json
+python scripts\run_pipeline.py --config configs\pipeline_article_best.json
 ```
+
+Files under `objsubvr/` are internal Python modules imported by the commands above. They are not meant to be executed directly.
 
 ## Install
 
@@ -51,9 +80,9 @@ configs/pipeline_article_best.json
 pip install -r requirements.txt
 ```
 
-Optional model packages such as LightGBM, XGBoost, CatBoost, and imbalanced-learn are listed in `requirements.txt` because the selected article configuration uses SVM, LightGBM, SMOTE, NearMiss, and undersampling.
+The selected article pipeline uses scikit-learn, imbalanced-learn, and LightGBM. Other optional model libraries are kept in the requirements because the generic classification utility can use them.
 
-## Inputs
+## Input Data
 
 For full article reproduction, provide FAST-style data with this layout:
 
@@ -65,7 +94,7 @@ FAST-Dataset/
     <participant>_BuildB_<timestamp>.csv
 ```
 
-The expected tracking columns are:
+Expected tracking columns:
 
 ```text
 Timestamp
@@ -78,29 +107,11 @@ Head_quat_z
 Head_quat_w
 ```
 
-The full article numbers require the full FAST participant set. The included `data/raw/fast_demo/` subset is only for checking that feature extraction runs.
+The full article metrics require the full FAST participant set. The included `data/raw/fast_demo/` subset is only a small example dataset for checking file format and feature extraction.
 
-## Smoke Test
+## Feature Extraction
 
-Run feature extraction on the included demo subset:
-
-```powershell
-python scripts\extract_features.py --config configs\feature_extraction_demo.json
-```
-
-This writes demo feature tables to:
-
-```text
-outputs/demo/headfeatures_data/
-```
-
-The demo subset should not be used to compare against article metrics.
-
-## Full Article Pipeline
-
-### 1. Extract Features
-
-Place the full FAST-style data under `FAST-Dataset/`, or edit paths in:
+Edit paths in:
 
 ```text
 configs/feature_extraction_fast.json
@@ -112,39 +123,34 @@ Then run:
 python scripts\extract_features.py --config configs\feature_extraction_fast.json
 ```
 
-This generates:
+This creates questionnaire-specific feature tables in:
 
 ```text
 headfeatures_data/
-  HeadFeaturesVSSUSBinary_BuildA.xlsx
-  HeadFeaturesVSSUSBinary_BuildB.xlsx
-  HeadFeaturesVSTLXBinary_BuildA.xlsx
-  HeadFeaturesVSTLXBinary_BuildB.xlsx
-  HeadFeaturesVSSPESBinary_BuildA.xlsx
-  HeadFeaturesVSSPESBinary_BuildB.xlsx
-  HeadFeaturesVSSSQ3Class_BuildA.xlsx
-  HeadFeaturesVSSSQ3Class_BuildB.xlsx
-  *_metadata.csv
-  feature_extraction_manifest.csv
 ```
 
-### 2. Run The Selected Article Pipeline
+Generated tables include:
 
-The final selected configuration is stored in:
+```text
+HeadFeaturesVSSUSBinary_BuildA.xlsx
+HeadFeaturesVSSUSBinary_BuildB.xlsx
+HeadFeaturesVSTLXBinary_BuildA.xlsx
+HeadFeaturesVSTLXBinary_BuildB.xlsx
+HeadFeaturesVSSPESBinary_BuildA.xlsx
+HeadFeaturesVSSPESBinary_BuildB.xlsx
+HeadFeaturesVSSSQ3Class_BuildA.xlsx
+HeadFeaturesVSSSQ3Class_BuildB.xlsx
+*_metadata.csv
+feature_extraction_manifest.csv
+```
+
+## Article Pipeline
+
+The final selected pipeline is defined in:
 
 ```text
 configs/pipeline_article_best.json
 ```
-
-It defines:
-
-- A+B pooled participant-grouped 7-fold evaluation;
-- Pearson redundancy feature reduction;
-- the selected model per questionnaire;
-- the selected preprocessing strategy;
-- the selected imbalance strategy;
-- the selected threshold strategy for binary targets;
-- the selected hyperparameters.
 
 Run:
 
@@ -152,13 +158,35 @@ Run:
 python scripts\run_pipeline.py --config configs\pipeline_article_best.json
 ```
 
-Outputs are written to:
+This evaluates the selected article configuration for each questionnaire. It does not rerun the full model-search history.
+
+## Configuration Files
+
+Main configs:
+
+| File | Purpose |
+|:--|:--|
+| `configs/feature_extraction_fast.json` | Full FAST-style feature extraction. |
+| `configs/feature_extraction_demo.json` | Example feature extraction using the included demo subset. |
+| `configs/pipeline_article_best.json` | Final selected article pipeline configuration. |
+
+Auxiliary templates and older demo configs are stored in:
+
+```text
+configs/examples/
+```
+
+They are not part of the official article reproduction path.
+
+## Outputs
+
+The selected article pipeline writes to:
 
 ```text
 outputs/article_best/
 ```
 
-Important output files:
+Important files:
 
 ```text
 outputs/article_best/article_best_results.md
@@ -170,9 +198,9 @@ outputs/article_best/<task>/<task>_feature_reduction_details.csv
 outputs/article_best/<task>/<task>_participant_fold_assignment.csv
 ```
 
-## Selected Configurations
+## Selected Model Configurations
 
-The selected article configurations are encoded in `configs/pipeline_article_best.json`:
+The selected article configurations are encoded in `configs/pipeline_article_best.json`.
 
 | Task | Model | Preprocessing | Imbalance | Threshold |
 |:--|:--|:--|:--|:--|
@@ -181,13 +209,11 @@ The selected article configurations are encoded in `configs/pipeline_article_bes
 | SPES binary | LightGBM, 150 estimators | median imputation | class weights | ROC G-mean |
 | SSQ 3-class | LightGBM, 150 estimators | winsorization + imputation | undersampling | not applicable |
 
-This script does not rerun the full model-search experiment. It evaluates the final configurations selected during the manuscript experiments.
-
 ## Methodological Safeguards
 
-The article pipeline is designed to reduce information leakage:
+The pipeline follows the article evaluation protocol:
 
-- Build A and Build B are pooled for each questionnaire task.
+- Build A and Build B are pooled for each questionnaire.
 - Splits are grouped by participant identifier.
 - Build A and Build B observations from the same participant stay in the same split partition.
 - Each split uses training, calibration, and test partitions.
@@ -218,6 +244,16 @@ Key values:
 | Angle unwrapping | `np.unwrap` on yaw and pitch radians |
 | Filtering/smoothing | no smoothing or low-pass filter |
 
+## Notebooks
+
+The notebooks are in:
+
+```text
+notebooks/
+```
+
+They are explanatory material. The official reproduction path is the command-line pipeline in `scripts/`.
+
 ## Adapting The Pipeline
 
 External users can adapt the pipeline in two ways:
@@ -225,30 +261,11 @@ External users can adapt the pipeline in two ways:
 1. Use FAST-style raw files and edit `configs/feature_extraction_fast.json`.
 2. Use precomputed tabular head metrics and align them to the expected schema with `scripts/transform_head_metrics.py`.
 
-The required feature schema is defined in:
+The expected feature schema is defined in:
 
 ```text
 scripts/head_metrics_schema.py
 ```
-
-Auxiliary templates and older demo configs are kept under:
-
-```text
-configs/examples/
-```
-
-They are not part of the official paper reproduction path.
-
-## Notebooks
-
-The notebooks are lightweight demos:
-
-```text
-01_prepare_head_metrics_dataset.ipynb
-02_run_classification_pipeline.ipynb
-```
-
-They are useful for exploring the workflow interactively. The official reproduction path is the command-line pipeline described above.
 
 ## Citation
 

@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from fast_tracking_ssq_dataset import FEATURE_COLUMNS
+from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 HEADFEATURES_DIR = ROOT / "headfeatures_data"
 
 SSQ_RAW_NAUSEA_COL = "ssq_raw_nausea_sum"
