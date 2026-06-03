@@ -36,7 +36,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
 
-from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS, HEAD_FEATURE_COLUMNS, VR_SYSTEM_FEATURE_COL
+from pipeline_core.fast_tracking_ssq_dataset import FEATURE_COLUMNS, HEAD_FEATURE_COLUMNS, VR_SYSTEM_FEATURE_COL
 
 try:
     from imblearn.ensemble import BalancedRandomForestClassifier

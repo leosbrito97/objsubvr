@@ -1,4 +1,4 @@
-# Introduction
+# *From Head Yaw to HMD Pose
 
 Reference pipeline for the paper **From Head Yaw to HMD Pose: A Reproducible Benchmark of Subjective VR Outcome Recoverability**.
 
@@ -40,7 +40,7 @@ configs/
   pipeline_article_best.json
   examples/
 
-objsubvr/
+pipeline_core/
   fast_tracking_ssq_dataset.py
   feature_families.py
   sus_binary_dataset.py
@@ -72,7 +72,7 @@ The intended public commands are:
 | Extract features | `python scripts\extract_features.py --config configs\feature_extraction_fast.json` |
 | Run article pipeline | `python scripts\run_pipeline.py --config configs\pipeline_article_best.json` |
 
-Files under `objsubvr/` are internal Python modules imported by the commands above. They are not meant to be executed directly.
+Files under `pipeline_core/` are internal Python modules imported by the commands above. They are not meant to be executed directly.
 
 ## Install
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
-from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS
+from pipeline_core.fast_tracking_ssq_dataset import FEATURE_COLUMNS
 
 
 FEATURE_FAMILIES: "OrderedDict[str, list[str]]" = OrderedDict(

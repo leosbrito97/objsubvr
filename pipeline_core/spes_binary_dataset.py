@@ -5,14 +5,15 @@ from pathlib import Path
 
 import pandas as pd
 
-from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS
+from pipeline_core.fast_tracking_ssq_dataset import FEATURE_COLUMNS
 
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADFEATURES_DIR = ROOT / "headfeatures_data"
-SUS_SCORE_COL = "sus_score"
-SUS_BINARY_TARGET_COL = "sus_not_acceptable_target"
-SUS_ACCEPTABLE_THRESHOLD = 70.0
+SPES_TOTAL_COL = "spes_total"
+SPES_CLASS_COL = "spes_total_class"
+SPES_BINARY_TARGET_COL = "spes_not_high_target"
+SPES_HIGH_THRESHOLD = 4.0
 
 
 def normalize_build(build: str) -> str:
@@ -24,41 +25,51 @@ def normalize_build(build: str) -> str:
 
 def source_dataset_path(build: str, headfeatures_dir: str | Path = HEADFEATURES_DIR) -> Path:
     build = normalize_build(build)
-    return Path(headfeatures_dir) / f"HeadFeaturesVSSUS_Build{build}.xlsx"
+    return Path(headfeatures_dir) / f"HeadFeaturesVSSPES_Build{build}.xlsx"
 
 
 def source_metadata_path(build: str, headfeatures_dir: str | Path = HEADFEATURES_DIR) -> Path:
     build = normalize_build(build)
-    return Path(headfeatures_dir) / f"HeadFeaturesVSSUS_Build{build}_metadata.csv"
+    return Path(headfeatures_dir) / f"HeadFeaturesVSSPES_Build{build}_metadata.csv"
 
 
 def binary_dataset_path(build: str, headfeatures_dir: str | Path = HEADFEATURES_DIR) -> Path:
     build = normalize_build(build)
-    return Path(headfeatures_dir) / f"HeadFeaturesVSSUSBinary_Build{build}.xlsx"
+    return Path(headfeatures_dir) / f"HeadFeaturesVSSPESBinary_Build{build}.xlsx"
 
 
 def binary_metadata_path(build: str, headfeatures_dir: str | Path = HEADFEATURES_DIR) -> Path:
     build = normalize_build(build)
-    return Path(headfeatures_dir) / f"HeadFeaturesVSSUSBinary_Build{build}_metadata.csv"
+    return Path(headfeatures_dir) / f"HeadFeaturesVSSPESBinary_Build{build}_metadata.csv"
 
 
-def sus_item_columns(build: str) -> list[str]:
+def spes_item_columns(build: str) -> list[str]:
     build = normalize_build(build)
-    return [f"{build}-SUS{i}" for i in range(1, 11)]
+    return [f"{build}-SPES{i}" for i in range(1, 9)]
 
 
-def compute_sus_score(df: pd.DataFrame, build: str) -> pd.Series:
-    build = normalize_build(build)
-    positive = [f"{build}-SUS{i}" for i in (1, 3, 5, 7, 9)]
-    negative = [f"{build}-SUS{i}" for i in (2, 4, 6, 8, 10)]
-    return (df[positive].sub(1).sum(axis=1) + (5 - df[negative]).sum(axis=1)) * 2.5
+def compute_spes_total(df: pd.DataFrame, build: str) -> pd.Series:
+    return df[spes_item_columns(build)].mean(axis=1)
 
 
-def build_binary_target(sus_score: pd.Series) -> pd.Series:
-    return sus_score.le(SUS_ACCEPTABLE_THRESHOLD).astype(int)
+def classify_spes_total(spes_total: pd.Series) -> pd.Series:
+    def classify(score: float) -> str:
+        if score < 2.0:
+            return "low_spatial_presence"
+        if score < 3.0:
+            return "low_to_moderate"
+        if score < 4.0:
+            return "moderate"
+        return "high"
+
+    return spes_total.apply(classify)
 
 
-def build_sus_binary_dataset(
+def build_binary_target(spes_total: pd.Series) -> pd.Series:
+    return spes_total.lt(SPES_HIGH_THRESHOLD).astype(int)
+
+
+def build_spes_binary_dataset(
     build: str,
     *,
     headfeatures_dir: str | Path = HEADFEATURES_DIR,
@@ -82,19 +93,26 @@ def build_sus_binary_dataset(
             f"{len(source_df)} vs {len(metadata_df)}."
         )
 
-    sus_score = compute_sus_score(source_df, build).round(4)
-    binary_target = build_binary_target(sus_score)
+    spes_total = compute_spes_total(source_df, build).round(4)
+    spes_class = classify_spes_total(spes_total)
+    binary_target = build_binary_target(spes_total)
 
     output_df = source_df.copy()
-    output_df[SUS_SCORE_COL] = sus_score
-    output_df[SUS_BINARY_TARGET_COL] = binary_target
+    output_df[SPES_TOTAL_COL] = spes_total
+    output_df[SPES_CLASS_COL] = spes_class
+    output_df[SPES_BINARY_TARGET_COL] = binary_target
 
-    ordered_columns = FEATURE_COLUMNS + sus_item_columns(build) + [SUS_SCORE_COL, SUS_BINARY_TARGET_COL]
+    ordered_columns = FEATURE_COLUMNS + spes_item_columns(build) + [
+        SPES_TOTAL_COL,
+        SPES_CLASS_COL,
+        SPES_BINARY_TARGET_COL,
+    ]
     output_df = output_df.loc[:, ordered_columns]
 
     output_metadata_df = metadata_df.copy()
-    output_metadata_df[SUS_SCORE_COL] = sus_score.to_numpy()
-    output_metadata_df[SUS_BINARY_TARGET_COL] = binary_target.to_numpy()
+    output_metadata_df[SPES_TOTAL_COL] = spes_total.to_numpy()
+    output_metadata_df[SPES_CLASS_COL] = spes_class.to_numpy()
+    output_metadata_df[SPES_BINARY_TARGET_COL] = binary_target.to_numpy()
 
     dataset_path.parent.mkdir(parents=True, exist_ok=True)
     output_df.to_excel(dataset_path, index=False)
@@ -105,7 +123,7 @@ def build_sus_binary_dataset(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Gera datasets binarios de SUS por build, com score SUS e target 1=nao aceitavel."
+        description="Gera datasets binarios de SPES por build, com score medio e target 1=nao alta."
     )
     parser.add_argument(
         "--build",
@@ -121,7 +139,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--headfeatures-dir",
         default=str(HEADFEATURES_DIR),
-        help="Diretorio com os datasets originais de SUS.",
+        help="Diretorio com os datasets originais de SPES.",
     )
     return parser.parse_args()
 
@@ -131,12 +149,12 @@ def main() -> None:
     builds = ("A", "B") if str(args.build).lower() == "all" else (normalize_build(args.build),)
 
     for build in builds:
-        dataset_path, metadata_path, df, metadata_df = build_sus_binary_dataset(
+        dataset_path, metadata_path, df, metadata_df = build_spes_binary_dataset(
             build,
             headfeatures_dir=args.headfeatures_dir,
             overwrite=args.overwrite,
         )
-        positive_count = int(df[SUS_BINARY_TARGET_COL].sum())
+        positive_count = int(df[SPES_BINARY_TARGET_COL].sum())
         print(
             f"Build {build}: {dataset_path.name} | "
             f"rows={len(df)} | positives={positive_count} | "

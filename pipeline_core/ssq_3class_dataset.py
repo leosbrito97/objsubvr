@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from objsubvr.fast_tracking_ssq_dataset import FEATURE_COLUMNS
+from pipeline_core.fast_tracking_ssq_dataset import FEATURE_COLUMNS
 
 
 ROOT = Path(__file__).resolve().parents[1]

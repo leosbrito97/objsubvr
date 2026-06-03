@@ -13,14 +13,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from objsubvr.fast_tracking_ssq_dataset import (  # noqa: E402
+from pipeline_core.fast_tracking_ssq_dataset import (  # noqa: E402
     QUESTIONNAIRE_TYPES,
     build_headfeatures_questionnaire_dataset,
 )
-from objsubvr.spes_binary_dataset import build_spes_binary_dataset  # noqa: E402
-from objsubvr.ssq_3class_dataset import build_ssq_3class_dataset  # noqa: E402
-from objsubvr.sus_binary_dataset import build_sus_binary_dataset  # noqa: E402
-from objsubvr.tlx_binary_dataset import build_tlx_binary_dataset  # noqa: E402
+from pipeline_core.spes_binary_dataset import build_spes_binary_dataset  # noqa: E402
+from pipeline_core.ssq_3class_dataset import build_ssq_3class_dataset  # noqa: E402
+from pipeline_core.sus_binary_dataset import build_sus_binary_dataset  # noqa: E402
+from pipeline_core.tlx_binary_dataset import build_tlx_binary_dataset  # noqa: E402
 
 
 DERIVED_DATASET_BUILDERS = {
