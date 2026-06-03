@@ -1,4 +1,4 @@
-# objsubvr
+# Introduction
 
 Reference pipeline for the paper **From Head Yaw to HMD Pose: A Reproducible Benchmark of Subjective VR Outcome Recoverability**.
 
