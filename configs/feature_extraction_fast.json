@@ -1,0 +1,10 @@
+{
+  "description": "Feature extraction config for the full FAST-style article dataset.",
+  "scores_path": "FAST-Dataset/FAST Scores.xlsx",
+  "tracking_dir": "FAST-Dataset/Tracking",
+  "output_dir": "headfeatures_data",
+  "questionnaires": ["SUS", "TLX", "SPES", "SSQ"],
+  "builds": ["A", "B"],
+  "create_derived_targets": true,
+  "n_turns_threshold_deg": 0.05
+}

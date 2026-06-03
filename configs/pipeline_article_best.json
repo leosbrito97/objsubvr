@@ -1,0 +1,63 @@
+{
+  "description": "Selected best A+B pooled article pipeline configuration. This file does not perform model search; it evaluates the final configuration selected during the manuscript experiments.",
+  "headfeatures_dir": "headfeatures_data",
+  "output_dir": "outputs/article_best",
+  "random_state": 42,
+  "split": {
+    "mode": "participant_grouped_ab_pooled",
+    "n_folds": 7,
+    "train_calibration_test_rotation": true,
+    "pool_builds": ["A", "B"]
+  },
+  "feature_reduction": {
+    "enabled": true,
+    "method": "pearson_redundancy_filter",
+    "corr_method": "pearson",
+    "corr_threshold": 0.9,
+    "fit_on": "training_fold_only"
+  },
+  "tasks": {
+    "sus_binary": {
+      "model_name": "svm",
+      "preprocess_strategy": "standard",
+      "imbalance_strategy": "nearmiss",
+      "threshold_strategy": "roc_gmean",
+      "selected_hyperparams": {
+        "C": 1.0,
+        "kernel": "linear"
+      }
+    },
+    "tlx_binary": {
+      "model_name": "svm",
+      "preprocess_strategy": "power_standard",
+      "imbalance_strategy": "smote",
+      "threshold_strategy": "pr_ideal_distance",
+      "selected_hyperparams": {
+        "C": 0.25,
+        "kernel": "linear"
+      }
+    },
+    "spes_binary": {
+      "model_name": "lightgbm",
+      "preprocess_strategy": "median_only",
+      "imbalance_strategy": "class_weight",
+      "threshold_strategy": "roc_gmean",
+      "selected_hyperparams": {
+        "learning_rate": 0.05,
+        "n_estimators": 150,
+        "num_leaves": 15
+      }
+    },
+    "ssq_3class": {
+      "model_name": "lightgbm",
+      "preprocess_strategy": "winsor_only",
+      "imbalance_strategy": "undersample",
+      "threshold_strategy": "N/A",
+      "selected_hyperparams": {
+        "learning_rate": 0.05,
+        "n_estimators": 150,
+        "num_leaves": 15
+      }
+    }
+  }
+}
