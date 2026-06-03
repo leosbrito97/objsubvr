@@ -1,8 +1,6 @@
 # objsubvr
 
-Reference pipeline for the paper:
-
-**From Head Yaw to HMD Pose: A Reproducible Benchmark of Subjective VR Outcome Recoverability**
+Reference pipeline for the paper **From Head Yaw to HMD Pose: A Reproducible Benchmark of Subjective VR Outcome Recoverability**.
 
 This repository exposes the final reproducible pipeline used by the paper. The workflow is intentionally simple:
 
@@ -17,19 +15,21 @@ The internal experiment history is not part of this repository. The goal here is
 
 ## Index
 
-- [Repository Layout](#repository-layout)
-- [Install](#install)
-- [Input Data](#input-data)
-- [Feature Extraction](#feature-extraction)
-- [Article Pipeline](#article-pipeline)
-- [Configuration Files](#configuration-files)
-- [Outputs](#outputs)
-- [Selected Model Configurations](#selected-model-configurations)
-- [Methodological Safeguards](#methodological-safeguards)
-- [Feature-Extraction Parameters](#feature-extraction-parameters)
-- [Notebooks](#notebooks)
-- [Adapting The Pipeline](#adapting-the-pipeline)
-- [Citation](#citation)
+| Section | Description |
+|:--|:--|
+| [Repository Layout](#repository-layout) | Where code, configs, notebooks, data, and outputs live. |
+| [Install](#install) | Python dependencies. |
+| [Input Data](#input-data) | Required FAST-style data layout and tracking columns. |
+| [Feature Extraction](#feature-extraction) | Raw scores/tracking files to questionnaire feature tables. |
+| [Article Pipeline](#article-pipeline) | Selected article configuration and evaluation command. |
+| [Configuration Files](#configuration-files) | Main JSON configs and auxiliary examples. |
+| [Outputs](#outputs) | Files produced by the selected pipeline. |
+| [Selected Model Configurations](#selected-model-configurations) | Final model choices per questionnaire. |
+| [Methodological Safeguards](#methodological-safeguards) | Leakage-control decisions used by the pipeline. |
+| [Feature-Extraction Parameters](#feature-extraction-parameters) | Parameter values used to compute tracking features. |
+| [Notebooks](#notebooks) | Interactive explanatory material. |
+| [Adapting The Pipeline](#adapting-the-pipeline) | How to reuse the pipeline with other data. |
+| [Citation](#citation) | Paper citation placeholder. |
 
 ## Repository Layout
 
@@ -67,10 +67,10 @@ outputs/
 
 The intended public commands are:
 
-```powershell
-python scripts\extract_features.py --config configs\feature_extraction_fast.json
-python scripts\run_pipeline.py --config configs\pipeline_article_best.json
-```
+| Step | Command |
+|:--|:--|
+| Extract features | `python scripts\extract_features.py --config configs\feature_extraction_fast.json` |
+| Run article pipeline | `python scripts\run_pipeline.py --config configs\pipeline_article_best.json` |
 
 Files under `objsubvr/` are internal Python modules imported by the commands above. They are not meant to be executed directly.
 
@@ -96,16 +96,16 @@ FAST-Dataset/
 
 Expected tracking columns:
 
-```text
-Timestamp
-Head_position_x
-Head_position_y
-Head_position_z
-Head_quat_x
-Head_quat_y
-Head_quat_z
-Head_quat_w
-```
+| Column |
+|:--|
+| `Timestamp` |
+| `Head_position_x` |
+| `Head_position_y` |
+| `Head_position_z` |
+| `Head_quat_x` |
+| `Head_quat_y` |
+| `Head_quat_z` |
+| `Head_quat_w` |
 
 The full article metrics require the full FAST participant set. The included `data/raw/fast_demo/` subset is only a small example dataset for checking file format and feature extraction.
 
@@ -123,26 +123,22 @@ Then run:
 python scripts\extract_features.py --config configs\feature_extraction_fast.json
 ```
 
-This creates questionnaire-specific feature tables in:
-
-```text
-headfeatures_data/
-```
+This creates questionnaire-specific feature tables in `headfeatures_data/`.
 
 Generated tables include:
 
-```text
-HeadFeaturesVSSUSBinary_BuildA.xlsx
-HeadFeaturesVSSUSBinary_BuildB.xlsx
-HeadFeaturesVSTLXBinary_BuildA.xlsx
-HeadFeaturesVSTLXBinary_BuildB.xlsx
-HeadFeaturesVSSPESBinary_BuildA.xlsx
-HeadFeaturesVSSPESBinary_BuildB.xlsx
-HeadFeaturesVSSSQ3Class_BuildA.xlsx
-HeadFeaturesVSSSQ3Class_BuildB.xlsx
-*_metadata.csv
-feature_extraction_manifest.csv
-```
+| Output |
+|:--|
+| `HeadFeaturesVSSUSBinary_BuildA.xlsx` |
+| `HeadFeaturesVSSUSBinary_BuildB.xlsx` |
+| `HeadFeaturesVSTLXBinary_BuildA.xlsx` |
+| `HeadFeaturesVSTLXBinary_BuildB.xlsx` |
+| `HeadFeaturesVSSPESBinary_BuildA.xlsx` |
+| `HeadFeaturesVSSPESBinary_BuildB.xlsx` |
+| `HeadFeaturesVSSSQ3Class_BuildA.xlsx` |
+| `HeadFeaturesVSSSQ3Class_BuildB.xlsx` |
+| `*_metadata.csv` |
+| `feature_extraction_manifest.csv` |
 
 ## Article Pipeline
 
@@ -170,33 +166,23 @@ Main configs:
 | `configs/feature_extraction_demo.json` | Example feature extraction using the included demo subset. |
 | `configs/pipeline_article_best.json` | Final selected article pipeline configuration. |
 
-Auxiliary templates and older demo configs are stored in:
-
-```text
-configs/examples/
-```
-
-They are not part of the official article reproduction path.
+Auxiliary templates and older demo configs are stored in `configs/examples/`. They are not part of the official article reproduction path.
 
 ## Outputs
 
-The selected article pipeline writes to:
-
-```text
-outputs/article_best/
-```
+The selected article pipeline writes to `outputs/article_best/`.
 
 Important files:
 
-```text
-outputs/article_best/article_best_results.md
-outputs/article_best/article_best_summary.csv
-outputs/article_best/article_best_selected_by_questionnaire.csv
-outputs/article_best/<task>/<task>_selected_results.csv
-outputs/article_best/<task>/<task>_test_predictions.csv
-outputs/article_best/<task>/<task>_feature_reduction_details.csv
-outputs/article_best/<task>/<task>_participant_fold_assignment.csv
-```
+| Output |
+|:--|
+| `outputs/article_best/article_best_results.md` |
+| `outputs/article_best/article_best_summary.csv` |
+| `outputs/article_best/article_best_selected_by_questionnaire.csv` |
+| `outputs/article_best/<task>/<task>_selected_results.csv` |
+| `outputs/article_best/<task>/<task>_test_predictions.csv` |
+| `outputs/article_best/<task>/<task>_feature_reduction_details.csv` |
+| `outputs/article_best/<task>/<task>_participant_fold_assignment.csv` |
 
 ## Selected Model Configurations
 
@@ -213,23 +199,21 @@ The selected article configurations are encoded in `configs/pipeline_article_bes
 
 The pipeline follows the article evaluation protocol:
 
-- Build A and Build B are pooled for each questionnaire.
-- Splits are grouped by participant identifier.
-- Build A and Build B observations from the same participant stay in the same split partition.
-- Each split uses training, calibration, and test partitions.
-- Preprocessing is fitted only on training data.
-- Pearson feature reduction is fitted only on training data.
-- Imbalance handling is applied only during model fitting.
-- Binary thresholds are selected only on the calibration fold.
-- The test fold is used only for final evaluation.
+| Safeguard | Description |
+|:--|:--|
+| A+B pooling | Build A and Build B are pooled for each questionnaire. |
+| Participant grouping | Splits are grouped by participant identifier. |
+| Paired build assignment | Build A and Build B observations from the same participant stay in the same split partition. |
+| Split roles | Each split uses training, calibration, and test partitions. |
+| Preprocessing isolation | Preprocessing is fitted only on training data. |
+| Feature-reduction isolation | Pearson feature reduction is fitted only on training data. |
+| Imbalance handling | Imbalance handling is applied only during model fitting. |
+| Threshold selection | Binary thresholds are selected only on the calibration fold. |
+| Final testing | The test fold is used only for final evaluation. |
 
 ## Feature-Extraction Parameters
 
-Exact feature-extraction parameters are documented in:
-
-```text
-docs/feature_extraction_parameters.md
-```
+Exact feature-extraction parameters are documented in `docs/feature_extraction_parameters.md`.
 
 Key values:
 
@@ -246,13 +230,7 @@ Key values:
 
 ## Notebooks
 
-The notebooks are in:
-
-```text
-notebooks/
-```
-
-They are explanatory material. The official reproduction path is the command-line pipeline in `scripts/`.
+The notebooks are in `notebooks/`. They are explanatory material. The official reproduction path is the command-line pipeline in `scripts/`.
 
 ## Adapting The Pipeline
 
@@ -261,11 +239,7 @@ External users can adapt the pipeline in two ways:
 1. Use FAST-style raw files and edit `configs/feature_extraction_fast.json`.
 2. Use precomputed tabular head metrics and align them to the expected schema with `scripts/transform_head_metrics.py`.
 
-The expected feature schema is defined in:
-
-```text
-scripts/head_metrics_schema.py
-```
+The expected feature schema is defined in `scripts/head_metrics_schema.py`.
 
 ## Citation
 
